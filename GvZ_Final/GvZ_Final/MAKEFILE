@@ -1,0 +1,78 @@
+OBJECTS = bitmaps.o splash_1.o splash_2.o event.o model.o game.o render.o raster.o psg.o clear_qk.o steem.o
+#OBJECTS2 = bitmaps.c splash_1.c splash_2.c event.c model.c game.c render.c raster.c psg.c clear_qk.s steem.s
+BITMAPS = images\bitmaps
+SPLASH = images\splash_
+EVENT = events\event
+MODEL = model\model
+GAME = main\game
+RENDER = drawing\render
+RASTER = drawing\raster
+PSG = audio\psg
+SOUND = audio\sound
+CLEAR_QK = clearqk\clear_qk
+STEEM = steem\steem
+INIT = burn\init
+START = burn\start
+BURNROMS = burn\burnroms
+all: 
+	make clean
+	make gtest
+
+burn:
+	make os.prg
+
+clean:
+	!Rm gvz
+
+gtest: $(OBJECTS)
+	cc68x -g $(BITMAPS).o $(SPLASH)1.o $(SPLASH)2.o $(EVENT).o $(MODEL).o $(GAME).o $(RENDER).o $(RASTER).o $(PSG).o $(CLEAR_QK).o $(STEEM).o -o gvz
+
+#testing 
+	
+os.img: os.prg
+	$(BURNROMS)
+
+os.prg: $(START).o $(INIT).o $(OBJECTS)
+	cc68x -g $(BITMAPS).o $(SPLASH)1.o $(SPLASH)2.o $(EVENT).o $(MODEL).o $(GAME).o $(RENDER).o $(RASTER).o $(PSG).o $(CLEAR_QK).o $(STEEM).o
+	ld $(START).o $(INIT).o $(BITMAPS).o $(SPLASH)1.o $(SPLASH)2.o $(EVENT).o $(MODEL).o $(GAME).o $(RENDER).o $(RASTER).o $(PSG).o $(CLEAR_QK).o $(STEEM).o crt0.o libc.a -o os.prg
+
+start.o: $(START).s
+	gen -L2 $(START).s
+
+init.o: $(INIT).c
+	cc68x -c $(INIT).c	
+
+#testing
+	
+bitmaps.o: $(BITMAPS).h $(BITMAPS).c
+	cc68x  -g -c $(BITMAPS).c
+	
+splash_1.o: $(SPLASH)1.c $(BITMAPS).h
+	cc68x -g -c $(SPLASH)1.c
+	
+splash_2.o: $(SPLASH)2.c $(BITMAPS).h
+	cc68x -g -c $(SPLASH)2.c
+
+steem.o: $(STEEM).S
+	gen -D -L2 $(STEEM).S
+
+game.o: $(GAME).C
+	cc68x -g -c $(GAME).c
+	
+clear_qk.o: $(CLEAR_QK).S
+	gen -D -L2 $(CLEAR_QK).S
+
+model.o: $(MODEL).c $(MODEL).h
+	cc68x -g -c $(MODEL).c
+	
+event.o: $(EVENT).c $(EVENT).h
+	cc68x -g -c $(EVENT).c
+
+render.o: $(RENDER).c $(RENDER).h
+	cc68x -g -c $(RENDER).c
+
+raster.o: $(RASTER).c $(RASTER).h
+	cc68x -g -c $(RASTER).c
+	
+psg.o: $(PSG).c $(PSG).h
+	cc68x -g -c $(PSG).c
